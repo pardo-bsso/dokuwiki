@@ -119,7 +119,11 @@ function cleanID($raw_id,$ascii=false){
         $sepcharpat = '#\\'.$sepchar.'+#';
 
     $id = trim((string)$raw_id);
-    $id = utf8_strtolower($id);
+    if (preg_match("/(\.png|\.svg|\.jpeg|\.jpg)$/i", $id)) {
+        // If it's one of the common image formats do not transform the name.
+    } else {
+        $id = utf8_strtolower($id);
+    }
 
     //alternative namespace seperator
     if($conf['useslash']){
