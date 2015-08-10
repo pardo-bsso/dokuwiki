@@ -284,13 +284,26 @@ function page_exists($id,$rev='',$clean=true, $date_at=false) {
  * @author Andreas Gohr <andi@splitbrain.org>
  */
 function wikiFN($raw_id,$rev='',$clean=true){
+    $txt = wikiFN_orig($raw_id, $rev, $clean, '.txt');
+    $md = wikiFN_orig($raw_id, $rev, $clean, '.md');
+
+    if (file_exists($md)){
+        return $md;
+    }
+
+    if (file_exists($txt)){
+        return $txt;
+    }
+}
+
+function wikiFN_orig($raw_id,$rev='',$clean=true, $ext='.txt'){
     global $conf;
 
     global $cache_wikifn;
     $cache = & $cache_wikifn;
 
-    if (isset($cache[$raw_id]) && isset($cache[$raw_id][$rev])) {
-        return $cache[$raw_id][$rev];
+    if (isset($cache[$raw_id.$ext]) && isset($cache[$raw_id.$ext][$rev])) {
+        return $cache[$raw_id.$ext][$rev];
     }
 
     $id = $raw_id;
@@ -298,9 +311,9 @@ function wikiFN($raw_id,$rev='',$clean=true){
     if ($clean) $id = cleanID($id);
     $id = str_replace(':','/',$id);
     if(empty($rev)){
-        $fn = $conf['datadir'].'/'.utf8_encodeFN($id).'.txt';
+        $fn = $conf['datadir'].'/'.utf8_encodeFN($id).$ext;
     }else{
-        $fn = $conf['olddir'].'/'.utf8_encodeFN($id).'.'.$rev.'.txt';
+        $fn = $conf['olddir'].'/'.utf8_encodeFN($id).'.'.$rev.$ext;
         if($conf['compression']){
             //test for extensions here, we want to read both compressions
             if (file_exists($fn . '.gz')){
@@ -314,8 +327,8 @@ function wikiFN($raw_id,$rev='',$clean=true){
         }
     }
 
-    if (!isset($cache[$raw_id])) { $cache[$raw_id] = array(); }
-    $cache[$raw_id][$rev] = $fn;
+    if (!isset($cache[$raw_id.$ext])) { $cache[$raw_id.$ext] = array(); }
+    $cache[$raw_id.$ext][$rev] = $fn;
     return $fn;
 }
 
